@@ -11,112 +11,181 @@ export default function Home() {
     endTime: "11:00",
   });
   const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus("予約処理中...");
+    setLoading(true);
+    setStatus("");
 
-    // 日時を結合してISO形式に変換 (例: 2024-01-01T10:00:00)
-    const startDateTime = new Date(`${formData.date}T${formData.startTime}`);
-    const endDateTime = new Date(`${formData.date}T${formData.endTime}`);
+    try {
+      const startDateTime = new Date(`${formData.date}T${formData.startTime}`);
+      const endDateTime = new Date(`${formData.date}T${formData.endTime}`);
 
-    const res = await fetch("/api/book", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-        start: startDateTime.toISOString(),
-        end: endDateTime.toISOString(),
-      }),
-    });
+      const res = await fetch("/api/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          start: startDateTime.toISOString(),
+          end: endDateTime.toISOString(),
+        }),
+      });
 
-    if (res.ok) {
-      setStatus("予約が完了しました！カレンダーを確認してください。");
-      setFormData({ ...formData, name: "", email: "" }); // フォームをクリア
-    } else {
-      const errorData = await res.json();
-      setStatus(`エラー: ${errorData.message}`);
+      const data = await res.json();
+
+      if (res.ok) {
+        setStatus("success");
+        setFormData({ ...formData, name: "", email: "" });
+      } else {
+        setStatus(data.message || "予約エラーが発生しました");
+      }
+    } catch (error) {
+      console.error(error);
+      setStatus("システムエラーが発生しました");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          ラウンジ予約
-        </h1>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans text-slate-800">
+      <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+        
+        {/* ヘッダーエリア */}
+        <div className="bg-slate-900 p-8 text-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400"></div>
+          <p className="text-blue-200 text-xs tracking-[0.3em] font-medium mb-2">RESERVATION</p>
+          <h1 className="text-3xl font-light text-white tracking-wider">
+            ROPPONGI LOUNGE
+          </h1>
+          <p className="text-slate-400 text-sm mt-2 font-light">
+            ボーネルンド六本木店 特別ラウンジ予約
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">お名前</label>
-            <input
-              type="text"
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">メールアドレス</label>
-            <input
-              type="email"
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">日付</label>
-            <input
-              type="date"
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">開始時間</label>
-              <input
-                type="time"
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-                value={formData.startTime}
-                onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-              />
+        {/* フォームエリア */}
+        <div className="p-8 md:p-10">
+          {status === "success" ? (
+            <div className="text-center py-10">
+              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                ✓
+              </div>
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Thank you</h2>
+              <p className="text-slate-500">ご予約を受け付けました。<br/>当日のお越しをお待ちしております。</p>
+              <button 
+                onClick={() => setStatus("")}
+                className="mt-8 text-sm text-slate-500 underline hover:text-slate-800"
+              >
+                続けて予約する
+              </button>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">終了時間</label>
-              <input
-                type="time"
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-                value={formData.endTime}
-                onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-              />
-            </div>
-          </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              
+              {/* 名前 */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="お名前を入力"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition duration-200"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
+              </div>
 
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            予約する
-          </button>
-        </form>
+              {/* メールアドレス */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="sample@example.com"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition duration-200"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                />
+              </div>
 
-        {status && (
-          <div className={`mt-4 p-3 rounded text-center text-sm ${status.includes("完了") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-            {status}
-          </div>
-        )}
+              {/* 日付 */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  required
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition duration-200 text-slate-700"
+                  value={formData.date}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                />
+              </div>
+
+              {/* 時間選択 */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                    Start Time
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="time"
+                      required
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition duration-200 text-slate-700"
+                      value={formData.startTime}
+                      onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                    End Time
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="time"
+                      required
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition duration-200 text-slate-700"
+                      value={formData.endTime}
+                      onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* エラーメッセージ */}
+              {status && status !== "success" && (
+                <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg flex items-center">
+                  <span className="mr-2">⚠️</span> {status}
+                </div>
+              )}
+
+              {/* 送信ボタン */}
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-4 px-6 rounded-lg text-white font-medium tracking-wide shadow-lg transition duration-300 transform hover:-translate-y-0.5
+                  ${loading 
+                    ? "bg-slate-400 cursor-not-allowed" 
+                    : "bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 hover:shadow-xl"
+                  }`}
+              >
+                {loading ? "PROCESSING..." : "RESERVE NOW"}
+              </button>
+
+              <p className="text-center text-xs text-slate-400 mt-4">
+                ※ 同時刻の定員は6名様までとなります
+              </p>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );
