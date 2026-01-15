@@ -4,13 +4,12 @@ import { NextResponse } from 'next/server';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const date = searchParams.get('date');
+    const date = searchParams.get('date'); // "2026-01-16"
 
     if (!date) {
       return NextResponse.json({ message: '日付が指定されていません' }, { status: 400 });
     }
 
-    // 環境変数のチェック
     if (!process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_CALENDAR_ID) {
        return NextResponse.json({ message: 'サーバー設定エラー' }, { status: 500 });
     }
@@ -26,11 +25,11 @@ export async function GET(request: Request) {
     const calendar = google.calendar({ version: 'v3', auth });
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
 
-    // その日の0:00から23:59までの範囲を設定
+    // JSTの00:00:00〜23:59:59を正確にISO形式（UTC）に変換して検索範囲にする
+    // 例: 日本の 1/16 00:00 は、UTCの 1/15 15:00
     const timeMin = new Date(`${date}T00:00:00+09:00`).toISOString();
     const timeMax = new Date(`${date}T23:59:59+09:00`).toISOString();
 
-    // 予約リストを取得
     const events = await calendar.events.list({
       calendarId,
       timeMin,
@@ -38,15 +37,21 @@ export async function GET(request: Request) {
       singleEvents: true,
     });
 
-    // 時間枠ごとの予約数をカウント
     const bookings: { [key: string]: number } = {};
     const items = events.data.items || [];
 
     items.forEach((item) => {
       const start = item.start?.dateTime || item.start?.date;
       if (start) {
-        // "2024-01-01T10:00:00+09:00" -> "10:00" を抽出
-        const timeKey = new Date(start).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+        // ★ここが修正ポイント：サーバーの時間は無視して「Asia/Tokyo」として時間を抽出する
+        const dateObj = new Date(start);
+        const timeKey = new Intl.DateTimeFormat('ja-JP', {
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'Asia/Tokyo', // 強制的に日本時間で解釈
+        }).format(dateObj);
+
+        // "10:00" のような形式でカウントアップ
         bookings[timeKey] = (bookings[timeKey] || 0) + 1;
       }
     });
