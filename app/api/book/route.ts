@@ -6,12 +6,12 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, email, start, end } = body;
 
-    // 環境変数のチェック
-    if (!process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_CLIENT_EMAIL) {
-       return NextResponse.json({ message: 'サーバー設定エラー' }, { status: 500 });
+    // 1. 環境変数のチェック
+    if (!process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_CALENDAR_ID) {
+       return NextResponse.json({ message: 'サーバー設定エラー: 環境変数が不足しています' }, { status: 500 });
     }
 
-    // ★ 修正箇所: GoogleAuthを使用（引数が1つのオブジェクトになります）
+    // 2. Google認証設定
     const auth = new google.auth.GoogleAuth({
       credentials: {
         client_email: process.env.GOOGLE_CLIENT_EMAIL,
@@ -22,8 +22,11 @@ export async function POST(request: Request) {
 
     const calendar = google.calendar({ version: 'v3', auth });
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
+    
+    // ★ ここで定員数を設定（6名）
+    const MAX_CAPACITY = 6;
 
-    // 重複チェック
+    // 3. 予約状況の確認
     const existingEvents = await calendar.events.list({
       calendarId,
       timeMin: start,
@@ -31,14 +34,18 @@ export async function POST(request: Request) {
       singleEvents: true,
     });
 
-    if (existingEvents.data.items && existingEvents.data.items.length > 0) {
+    // 現在の予約数をカウント
+    const currentBookings = existingEvents.data.items ? existingEvents.data.items.length : 0;
+
+    // 定員オーバーならエラーを返す
+    if (currentBookings >= MAX_CAPACITY) {
       return NextResponse.json(
-        { message: 'その時間は既に予約が入っています。' }, 
+        { message: `申し訳ありません。その時間は満席です。（定員${MAX_CAPACITY}名に達しました）` }, 
         { status: 409 }
       );
     }
 
-    // 予約作成
+    // 4. 予約作成
     await calendar.events.insert({
       calendarId,
       requestBody: {
