@@ -50,18 +50,16 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans text-slate-800">
-      <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+    <div className="min-h-screen bg-white flex items-center justify-center p-6 font-sans text-gray-800">
+      <div className="max-w-lg w-full bg-white rounded-xl shadow-lg overflow-hidden border border-blue-100">
         
-        {/* ヘッダーエリア */}
-        <div className="bg-slate-900 p-8 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400"></div>
-          <p className="text-blue-200 text-xs tracking-[0.3em] font-medium mb-2">RESERVATION</p>
-          <h1 className="text-3xl font-light text-white tracking-wider">
-            ROPPONGI LOUNGE
+        {/* ヘッダーエリア (キドキドブルー) */}
+        <div className="bg-blue-600 p-6 text-center relative overflow-hidden">
+          <h1 className="text-2xl font-bold text-white tracking-wide">
+            ボーネルンド六本木店
           </h1>
-          <p className="text-slate-400 text-sm mt-2 font-light">
-            ボーネルンド六本木店 特別ラウンジ予約
+          <p className="text-blue-100 text-sm mt-1 font-medium">
+            特別ラウンジ予約フォーム
           </p>
         </div>
 
@@ -69,14 +67,14 @@ export default function Home() {
         <div className="p-8 md:p-10">
           {status === "success" ? (
             <div className="text-center py-10">
-              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
                 ✓
               </div>
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">Thank you</h2>
-              <p className="text-slate-500">ご予約を受け付けました。<br/>当日のお越しをお待ちしております。</p>
+              <h2 className="text-2xl font-bold text-blue-600 mb-2">ご予約ありがとうございます</h2>
+              <p className="text-gray-600">予約を受け付けました。<br/>当日のお越しをお待ちしております。</p>
               <button 
                 onClick={() => setStatus("")}
-                className="mt-8 text-sm text-slate-500 underline hover:text-slate-800"
+                className="mt-8 text-sm text-blue-600 underline hover:text-blue-800 font-medium"
               >
                 続けて予約する
               </button>
@@ -86,14 +84,14 @@ export default function Home() {
               
               {/* 名前 */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Name
+                <label className="block text-sm font-bold text-blue-600 mb-2">
+                  お名前 <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="お名前を入力"
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition duration-200"
+                  placeholder="例：ボーネルンド 太郎"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
@@ -101,14 +99,14 @@ export default function Home() {
 
               {/* メールアドレス */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Email
+                <label className="block text-sm font-bold text-blue-600 mb-2">
+                  メールアドレス <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
                   required
                   placeholder="sample@example.com"
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition duration-200"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 placeholder-gray-400"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
@@ -116,13 +114,13 @@ export default function Home() {
 
               {/* 日付 */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Date
+                <label className="block text-sm font-bold text-blue-600 mb-2">
+                  ご利用日 <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
                   required
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition duration-200 text-slate-700"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 text-gray-700"
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                 />
@@ -131,28 +129,28 @@ export default function Home() {
               {/* 時間選択 */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                    Start Time
+                  <label className="block text-sm font-bold text-blue-600 mb-2">
+                    開始時間 <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
                       type="time"
                       required
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition duration-200 text-slate-700"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 text-gray-700"
                       value={formData.startTime}
                       onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                    End Time
+                  <label className="block text-sm font-bold text-blue-600 mb-2">
+                    終了時間 <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
                       type="time"
                       required
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition duration-200 text-slate-700"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 text-gray-700"
                       value={formData.endTime}
                       onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
                     />
@@ -162,26 +160,26 @@ export default function Home() {
 
               {/* エラーメッセージ */}
               {status && status !== "success" && (
-                <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg flex items-center">
-                  <span className="mr-2">⚠️</span> {status}
+                <div className="bg-red-50 text-red-600 text-sm p-4 rounded-lg flex items-start border border-red-200">
+                  <span className="mr-2 text-lg">⚠️</span> <span>{status}</span>
                 </div>
               )}
 
-              {/* 送信ボタン */}
+              {/* 送信ボタン (キドキドブルー) */}
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-4 px-6 rounded-lg text-white font-medium tracking-wide shadow-lg transition duration-300 transform hover:-translate-y-0.5
+                className={`w-full py-4 px-6 rounded-lg text-white font-bold text-lg tracking-wide shadow-md transition duration-300 transform hover:-translate-y-0.5
                   ${loading 
-                    ? "bg-slate-400 cursor-not-allowed" 
-                    : "bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 hover:shadow-xl"
+                    ? "bg-gray-400 cursor-not-allowed" 
+                    : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg"
                   }`}
               >
-                {loading ? "PROCESSING..." : "RESERVE NOW"}
+                {loading ? "処理中..." : "予約する"}
               </button>
 
-              <p className="text-center text-xs text-slate-400 mt-4">
-                ※ 同時刻の定員は6名様までとなります
+              <p className="text-center text-xs text-gray-500 mt-4">
+                ※ 同時刻の定員は6名様までとなります。<span className="text-red-500">*</span> は必須項目です。
               </p>
             </form>
           )}
